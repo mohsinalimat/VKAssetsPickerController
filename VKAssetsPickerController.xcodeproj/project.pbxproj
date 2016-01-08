@@ -34,7 +34,7 @@
 		B8D12A351C3E4A5F002AD936 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B8D12A3F1C3E5117002AD936 /* VKAssetsPickerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VKAssetsPickerController.h; sourceTree = "<group>"; };
 		B8D12A401C3E5117002AD936 /* VKAssetsPickerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VKAssetsPickerController.m; sourceTree = "<group>"; };
-		B8D12A421C3E5AC1002AD936 /* ConstantHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConstantHeader.h; sourceTree = "<group>"; };
+		B8D12A421C3E5AC1002AD936 /* VKConstantHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VKConstantHeader.h; sourceTree = "<group>"; };
 		B8D12A461C3E5E3E002AD936 /* VKAssetCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VKAssetCell.h; sourceTree = "<group>"; };
 		B8D12A471C3E5E3E002AD936 /* VKAssetCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VKAssetCell.m; sourceTree = "<group>"; };
 		B8D12A481C3E5E3E002AD936 /* VKAssetCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VKAssetCell.xib; sourceTree = "<group>"; };
@@ -101,7 +101,7 @@
 			children = (
 				B8D12A4B1C3E6AE2002AD936 /* thumb_check@2x.png */,
 				B8D12A4C1C3E6AE2002AD936 /* thumb_uncheck@2x.png */,
-				B8D12A421C3E5AC1002AD936 /* ConstantHeader.h */,
+				B8D12A421C3E5AC1002AD936 /* VKConstantHeader.h */,
 				B8D12A3F1C3E5117002AD936 /* VKAssetsPickerController.h */,
 				B8D12A401C3E5117002AD936 /* VKAssetsPickerController.m */,
 				B8D12A461C3E5E3E002AD936 /* VKAssetCell.h */,

@@ -7,12 +7,12 @@
 //
 
 #import "VKAssetsPickerController.h"
-#import "ConstantHeader.h"
+#import "VKConstantHeader.h"
 #import "VKAssetCell.h"
 #import "VKPhotoPreview.h"
-#import <Photos/Photos.h>
 
-@interface VKAssetsPickerController () <PHPhotoLibraryChangeObserver, UICollectionViewDataSource, UICollectionViewDelegate>
+
+@interface VKAssetsPickerController () <PHPhotoLibraryChangeObserver, UICollectionViewDataSource, UICollectionViewDelegate, VKCellDelegate>
 
 @property (nonatomic, strong) PHPhotoLibrary *photoLibrary;
 
@@ -22,6 +22,9 @@
 @property (nonatomic, strong) PHCachingImageManager *imageManager;
 @property (nonatomic, assign) CGSize thumbnailSize;
 @property (nonatomic, strong) NSMutableArray *itemArray;
+@property (nonatomic, strong) UIView *bottomView;
+@property (nonatomic, strong) UIButton *doneButton;
+@property (nonatomic, assign) NSInteger selectedImageNums;
 @end
 
 @implementation VKAssetsPickerController
@@ -53,7 +56,7 @@ static NSString *identifier = @"VKAssetCellIdentifier";
 
 - (UICollectionView *)mCollectionView {
     if (!_mCollectionView) {
-        _mCollectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT) collectionViewLayout:self.flowLayout];
+        _mCollectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT - BOTTOM_VIEW_HEIGHT) collectionViewLayout:self.flowLayout];
         _mCollectionView.delegate = self;
         _mCollectionView.dataSource = self;
         _mCollectionView.backgroundColor = [UIColor whiteColor];
@@ -64,10 +67,35 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     return _mCollectionView;
 }
 
+- (UIView *)bottomView {
+    if (!_bottomView) {
+        _bottomView = [[UIView alloc]initWithFrame:CGRectMake(0, BOTTOM_VIEW_Y, APP_SCREEN_WIDTH, BOTTOM_VIEW_HEIGHT)];
+        NSLog(@"%@", NSStringFromCGRect(_bottomView.frame));
+        
+//        _bottomView.backgroundColor = [UIColor grayColor];
+        CGFloat buttonWidth = 55;
+        CGFloat buttonHeight = 24;
+        self.doneButton = [[UIButton alloc]initWithFrame:CGRectMake(_bottomView.frame.size.width - buttonWidth - 15, (BOTTOM_VIEW_HEIGHT - buttonHeight) / 2, buttonWidth, buttonHeight)];
+        self.doneButton.titleLabel.font = [UIFont systemFontOfSize:12];
+        self.doneButton.layer.cornerRadius = 3;
+        self.doneButton.layer.masksToBounds = YES;
+        
+        [self.doneButton setTitle:@"确定(0)" forState:UIControlStateNormal];
+        self.doneButton.backgroundColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.95 alpha:1];
+        
+        [self.doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
+        
+        [_bottomView addSubview:self.doneButton];
+    }
+    
+    return _bottomView;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor whiteColor];
+    self.selectedImageNums = 0;
     
     PHFetchOptions *allPhotosOptions = [[PHFetchOptions alloc] init];
     allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
@@ -75,11 +103,12 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     
     self.itemArray = [NSMutableArray array];
     for (PHAsset *asset in self.allPhotos) {
-        NSDictionary *tempDict = [NSDictionary dictionaryWithObjectsAndKeys:asset, @"asset", @0, @"selected", nil];
+        NSMutableDictionary *tempDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:asset, @"asset", @0, @"selected", nil];
         [self.itemArray addObject:tempDict];
     }
     
     [self.view addSubview:self.mCollectionView];
+    [self.view addSubview:self.bottomView];
     
     CGFloat scale = [UIScreen mainScreen].scale;
     CGSize cellSize = ((UICollectionViewFlowLayout *)self.flowLayout).itemSize;
@@ -94,6 +123,10 @@ static NSString *identifier = @"VKAssetCellIdentifier";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     VKAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
+    if (!cell.vkDelegate) {
+        cell.vkDelegate = self;
+    }
+    
     
     PHAsset *asset = self.itemArray[indexPath.item][@"asset"];
     
@@ -104,7 +137,7 @@ static NSString *identifier = @"VKAssetCellIdentifier";
                                     options:nil
                               resultHandler:^(UIImage *result, NSDictionary *info) {
                                   cell.thumbnail.image = result;
-                                  cell.selectButton.selected = self.itemArray[indexPath.item][@"selected"];
+                                  cell.selectButton.selected = [self.itemArray[indexPath.item][@"selected"] integerValue];
                               }];
     return cell;
 }
@@ -123,13 +156,59 @@ static NSString *identifier = @"VKAssetCellIdentifier";
                                 contentMode:PHImageContentModeAspectFill
                                     options:option
                               resultHandler:^(UIImage *result, NSDictionary *info) {
-                                  VKPhotoPreview *preview = [[VKPhotoPreview alloc]initWithFrame:CGRectMake(0, 0, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT)];
+                                  VKPhotoPreview *preview = [[VKPhotoPreview alloc]initWithFrame:self.view.frame];
+                                  __weak typeof(self) weakSelf = self;
+                                  preview.navBlock = ^(){
+                                      [weakSelf.navigationController setNavigationBarHidden:NO animated:YES];
+                                  };
                                   preview.photo.image = result;
+                                  [self.navigationController setNavigationBarHidden:YES animated:YES];
                                   [self.view addSubview:preview];
                               }];
 }
 
 - (void)photoLibraryDidChange:(PHChange *)changeInstance {
+    NSLog(@"change");
+}
+
+- (void)cellCheckButtonClick:(id)sender {
+    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.mCollectionView];
+    NSIndexPath *indexPath = [self.mCollectionView indexPathForItemAtPoint:buttonPosition];
+    if (indexPath != nil)
+    {
+        NSLog(@">>>%ld", indexPath.row);
+        NSLog(@">>>%ld", indexPath.item);
+        NSLog(@">>>%ld", indexPath.section);
+        VKAssetCell *cell = (VKAssetCell *)[self.mCollectionView cellForItemAtIndexPath:indexPath];
+        if (cell.selectButton.isSelected) {
+            self.itemArray[indexPath.item][@"selected"] = @0;
+            cell.selectButton.selected = NO;
+            self.selectedImageNums--;
+            NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
+            [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
+        }else{
+            self.itemArray[indexPath.item][@"selected"] = @1;
+            cell.selectButton.selected = YES;
+            self.selectedImageNums++;
+            NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
+            [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
+
+        }
+    }
+
+}
+
+- (void)doneButtonClick{
+    NSMutableArray *assets = [NSMutableArray arrayWithCapacity:self.itemArray.count];
+    for (NSMutableDictionary *temp in self.itemArray) {
+        if ([temp[@"selected"] integerValue] == 1) {
+            [assets addObject:temp[@"asset"]];
+        }
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(VKAssetsPicker:didFinishAssetsPick:)]) {
+        [self.delegate VKAssetsPicker:self didFinishAssetsPick:assets];
+    }
     
 }
 

@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "VKAssetsPickerController.h"
 
-@interface ViewController () 
+@interface ViewController () <VKAssetsPickerDelegate>
 
 @end
 
@@ -22,11 +22,18 @@
 
 - (IBAction)pickImage:(id)sender {
     VKAssetsPickerController *vc = [[VKAssetsPickerController alloc]init];
-    [self presentViewController:vc animated:YES completion:^{
-        
-    }];
+    vc.delegate = self;
+//    [self.navigationController pushViewController:vc animated:YES];
+    [self presentViewController:vc animated:YES completion:nil];
 }
 
+- (void)VKAssetsPicker:(VKAssetsPickerController *)pickerViewController didFinishAssetsPick:(NSArray *)assets {
+    [pickerViewController.navigationController popViewControllerAnimated:YES];
+    
+    for (PHAsset *asset in assets) {
+        NSLog(@"*** %@", asset);
+    }
+}
 
 
 - (void)didReceiveMemoryWarning {

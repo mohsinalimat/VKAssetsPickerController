@@ -8,9 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void(^showNavigationBar)(void);
+
 @interface VKPhotoPreview : UIView <UIScrollViewDelegate>
 
 @property (nonatomic, retain) UIImageView *photo;
 @property (nonatomic, retain) UIButton *closeButton;
 @property (nonatomic, retain) UIScrollView *containScrollView;
+@property (nonatomic, copy) showNavigationBar navBlock;
 @end

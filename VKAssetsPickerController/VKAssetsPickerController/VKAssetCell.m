@@ -8,10 +8,19 @@
 
 #import "VKAssetCell.h"
 
+
+
 @implementation VKAssetCell
 
 - (void)awakeFromNib {
     // Initialization code
+}
+
+- (IBAction)checkClick:(id)sender {
+    if ([self.vkDelegate respondsToSelector:@selector(cellCheckButtonClick:)]) {
+        [self.vkDelegate cellCheckButtonClick:sender];
+    }
+    
 }
 
 @end

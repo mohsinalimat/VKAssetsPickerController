@@ -7,7 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Photos/Photos.h>
+
+@class VKAssetsPickerController;
+@protocol VKAssetsPickerDelegate <NSObject>
+
+- (void)VKAssetsPicker:(VKAssetsPickerController *)pickerViewController didFinishAssetsPick:(NSArray *)assets;
+
+@end
 
 @interface VKAssetsPickerController : UIViewController
 
+@property (nonatomic, assign) id<VKAssetsPickerDelegate> delegate;
 @end

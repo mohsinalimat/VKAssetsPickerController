@@ -16,4 +16,8 @@
 #define ITEM_PADDING 1
 #define ITEM_COLUMN 4
 
+#define BOTTOM_VIEW_HEIGHT 44
+
+#define BOTTOM_VIEW_Y (APP_SCREEN_HEIGHT-BOTTOM_VIEW_HEIGHT)
+
 #endif /* ConstantHeader_h */

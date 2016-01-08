@@ -8,9 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol VKCellDelegate <NSObject>
+
+- (void)cellCheckButtonClick:(id)sender;
+
+@end
+
 @interface VKAssetCell : UICollectionViewCell
 @property (weak, nonatomic) IBOutlet UIImageView *thumbnail;
 @property (weak, nonatomic) IBOutlet UIButton *selectButton;
-
+@property (nonatomic, assign) id<VKCellDelegate> vkDelegate;
 
 @end

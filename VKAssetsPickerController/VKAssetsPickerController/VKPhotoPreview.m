@@ -7,21 +7,22 @@
 //
 
 #import "VKPhotoPreview.h"
-#import "ConstantHeader.h"
+#import "VKConstantHeader.h"
 @implementation VKPhotoPreview
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        self.backgroundColor = [UIColor grayColor];
-        self.photo = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT)];
+        self.backgroundColor = [UIColor blackColor];
+        self.photo = [[UIImageView alloc]initWithFrame:frame];
+        self.photo.contentMode = UIViewContentModeScaleAspectFit;
         
         self.containScrollView = [[UIScrollView alloc]initWithFrame:self.bounds];
         [self.containScrollView addSubview:self.photo];
         self.containScrollView.contentSize = self.photo.frame.size;
         self.containScrollView.delegate = self;
         self.containScrollView.maximumZoomScale = 2.0f;
-        self.containScrollView.minimumZoomScale = 0.5f;
+        self.containScrollView.minimumZoomScale = 1.0f;
         [self addSubview:self.containScrollView];
         
         self.closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -36,8 +37,13 @@
     return self;
 }
 
+
 - (void)closePreview {
-    [self removeFromSuperview];
+    self.navBlock();
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.15 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self removeFromSuperview];
+    });
+    
 }
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
