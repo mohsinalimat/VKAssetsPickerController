@@ -8,6 +8,14 @@
 
 #import "VKPhotoPreview.h"
 #import "VKHeader.h"
+
+@interface VKPhotoPreview ()
+
+@property (nonatomic, retain) UIView *contentView;
+@property (nonatomic, assign) CGFloat scrollViewCenterX;
+@property (nonatomic, assign) CGFloat scrollViewCenterY;
+@end
+
 @implementation VKPhotoPreview
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -33,6 +41,11 @@
         [self.closeButton addTarget:self action:@selector(closePreview) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:self.closeButton];
         
+        
+        self.contentView = [self.containScrollView.subviews firstObject];
+        self.scrollViewCenterX = self.containScrollView.frame.size.width / 2.0;
+        self.scrollViewCenterY = self.containScrollView.frame.size.height / 2.0;
+        
     }
     return self;
 }
@@ -50,4 +63,16 @@
     return self.photo;
 
 }
+
+//keep image in center when image is zooming
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView {
+    CGFloat midWidth = scrollView.contentSize.width * 0.5;
+    CGFloat midHeight = scrollView.contentSize.height * 0.5;
+    
+    CGFloat offsetX = MAX((self.scrollViewCenterX - midWidth), 0.0);
+    CGFloat offsetY = MAX((self.scrollViewCenterY - midHeight), 0.0);
+    
+    self.contentView.center = CGPointMake(midWidth + offsetX, midHeight + offsetY);
+}
+
 @end

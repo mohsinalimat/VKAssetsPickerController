@@ -71,7 +71,6 @@ static NSString *identifier = @"VKAssetCellIdentifier";
 - (UIView *)bottomView {
     if (!_bottomView) {
         _bottomView = [[UIView alloc]initWithFrame:CGRectMake(0, BOTTOM_VIEW_Y, APP_SCREEN_WIDTH, BOTTOM_VIEW_HEIGHT)];
-        NSLog(@"%@", NSStringFromCGRect(_bottomView.frame));
         
 //        _bottomView.backgroundColor = [UIColor grayColor];
         CGFloat buttonWidth = 55;
@@ -90,6 +89,14 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     }
     
     return _bottomView;
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.maximumImagesLimit = -1;  //选取任意张数的图片
+    }
+    return self;
 }
 
 - (void)viewDidLoad {
@@ -192,12 +199,17 @@ static NSString *identifier = @"VKAssetCellIdentifier";
             NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
             [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
         }else{
-            self.itemArray[indexPath.item][@"selected"] = @1;
-            cell.selectButton.selected = YES;
-            self.selectedImageNums++;
-            NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
-            [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
-
+            if (self.maximumImagesLimit == self.selectedImageNums){
+                if ([self.delegate respondsToSelector:@selector(VKAssetsPickerDidExceedMaximumImages:)]) {
+                    [self.delegate VKAssetsPickerDidExceedMaximumImages:self];
+                }
+            }else{
+                self.itemArray[indexPath.item][@"selected"] = @1;
+                cell.selectButton.selected = YES;
+                self.selectedImageNums++;
+                NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
+                [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
+            }
         }
     }
 

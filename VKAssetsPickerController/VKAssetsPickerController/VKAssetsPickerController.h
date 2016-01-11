@@ -12,12 +12,15 @@
 @class VKAssetsPickerController;
 @protocol VKAssetsPickerDelegate <NSObject>
 
-- (void)VKAssetsPicker:(VKAssetsPickerController *)pickerViewController didFinishAssetsPick:(NSArray *)assets;
+- (void)VKAssetsPicker:(VKAssetsPickerController *)picker didFinishAssetsPick:(NSArray *)assets;
 
+- (void)VKAssetsPickerDidExceedMaximumImages:(VKAssetsPickerController *)picker;
 @end
 
 @interface VKAssetsPickerController : UIViewController
 
-@property (nonatomic, assign) id<VKAssetsPickerDelegate> delegate;
+/* 给外界调用，初始化的属性*/
+@property (nonatomic, assign) NSInteger maximumImagesLimit;
 @property (nonatomic, retain) NSArray *selectedItems;
+@property (nonatomic, assign) id<VKAssetsPickerDelegate> delegate;
 @end
