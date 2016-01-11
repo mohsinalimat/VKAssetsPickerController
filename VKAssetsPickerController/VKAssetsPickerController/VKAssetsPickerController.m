@@ -7,7 +7,7 @@
 //
 
 #import "VKAssetsPickerController.h"
-#import "VKConstantHeader.h"
+#import "VKHeader.h"
 #import "VKAssetCell.h"
 #import "VKPhotoPreview.h"
 
@@ -47,7 +47,8 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     if (!_flowLayout) {
         _flowLayout = [[UICollectionViewFlowLayout alloc]init];
         _flowLayout.minimumLineSpacing = 1.0f;
-        _flowLayout.minimumInteritemSpacing = 0.0f;
+        _flowLayout.minimumInteritemSpacing = 1.0f;
+        _flowLayout.sectionInset = UIEdgeInsetsMake(ITEM_PADDING, ITEM_PADDING, ITEM_PADDING, ITEM_PADDING);
         CGFloat sizeLength = (APP_SCREEN_WIDTH - (ITEM_COLUMN + 1) * ITEM_PADDING) / (ITEM_COLUMN * 1.0f);
         _flowLayout.itemSize = CGSizeMake(sizeLength, sizeLength);
     }
@@ -79,8 +80,8 @@ static NSString *identifier = @"VKAssetCellIdentifier";
         self.doneButton.titleLabel.font = [UIFont systemFontOfSize:12];
         self.doneButton.layer.cornerRadius = 3;
         self.doneButton.layer.masksToBounds = YES;
-        
-        [self.doneButton setTitle:@"确定(0)" forState:UIControlStateNormal];
+        NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
+        [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
         self.doneButton.backgroundColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.95 alpha:1];
         
         [self.doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
@@ -103,7 +104,12 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     
     self.itemArray = [NSMutableArray array];
     for (PHAsset *asset in self.allPhotos) {
-        NSMutableDictionary *tempDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:asset, @"asset", @0, @"selected", nil];
+        NSInteger selected = 0;
+        if (self.selectedItems != nil && [self.selectedItems containsObject:asset]) {
+            self.selectedImageNums++;
+            selected = 1;
+        }
+        NSMutableDictionary *tempDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:asset, @"asset", @(selected), @"selected", nil];
         [self.itemArray addObject:tempDict];
     }
     
@@ -115,7 +121,6 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     self.thumbnailSize = CGSizeMake(cellSize.width * scale, cellSize.height * scale);
     NSLog(@">>>thumbnail>%@", NSStringFromCGSize(self.thumbnailSize));
     [self.photoLibrary registerChangeObserver:self];
-    
 }
 
 

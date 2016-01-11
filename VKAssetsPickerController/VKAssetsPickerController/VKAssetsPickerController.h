@@ -19,4 +19,5 @@
 @interface VKAssetsPickerController : UIViewController
 
 @property (nonatomic, assign) id<VKAssetsPickerDelegate> delegate;
+@property (nonatomic, retain) NSArray *selectedItems;
 @end

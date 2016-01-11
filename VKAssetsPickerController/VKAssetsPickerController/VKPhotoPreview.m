@@ -7,7 +7,7 @@
 //
 
 #import "VKPhotoPreview.h"
-#import "VKConstantHeader.h"
+#import "VKHeader.h"
 @implementation VKPhotoPreview
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -27,11 +27,11 @@
         
         self.closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
         self.closeButton.frame = CGRectMake(10, 10, 40, 30);
+        [self.closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [self.closeButton setTitleColor:[UIColor colorWithRed:0.7 green:0.7 blue:0.7 alpha:0.7] forState:UIControlStateHighlighted];
         [self.closeButton setTitle:@"退出" forState:UIControlStateNormal];
-        [self.closeButton setTitle:@"松开退出" forState:UIControlStateHighlighted];
         [self.closeButton addTarget:self action:@selector(closePreview) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:self.closeButton];
-        
         
     }
     return self;
