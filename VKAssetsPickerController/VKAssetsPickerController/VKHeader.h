@@ -20,4 +20,6 @@
 
 #define BOTTOM_VIEW_Y (APP_SCREEN_HEIGHT-BOTTOM_VIEW_HEIGHT)
 
+#define UIColorMake(r, g, b) [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1]
+
 #endif /* VKHeader_h */

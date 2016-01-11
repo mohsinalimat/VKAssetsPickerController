@@ -72,7 +72,7 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     if (!_bottomView) {
         _bottomView = [[UIView alloc]initWithFrame:CGRectMake(0, BOTTOM_VIEW_Y, APP_SCREEN_WIDTH, BOTTOM_VIEW_HEIGHT)];
         
-//        _bottomView.backgroundColor = [UIColor grayColor];
+        _bottomView.backgroundColor = UIColorMake(249, 249, 249);
         CGFloat buttonWidth = 55;
         CGFloat buttonHeight = 24;
         self.doneButton = [[UIButton alloc]initWithFrame:CGRectMake(_bottomView.frame.size.width - buttonWidth - 15, (BOTTOM_VIEW_HEIGHT - buttonHeight) / 2, buttonWidth, buttonHeight)];
@@ -81,7 +81,7 @@ static NSString *identifier = @"VKAssetCellIdentifier";
         self.doneButton.layer.masksToBounds = YES;
         NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
         [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
-        self.doneButton.backgroundColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.95 alpha:1];
+        self.doneButton.backgroundColor = [UIColor colorWithRed:0.3 green:0.6 blue:0.95 alpha:1];
         
         [self.doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
         

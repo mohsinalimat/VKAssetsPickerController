@@ -24,7 +24,7 @@
 - (IBAction)pickImage:(id)sender {
     VKAssetsPickerController *vc = [[VKAssetsPickerController alloc]init];
     vc.navigationItem.title = @"选择照片";
-//    vc.maximumImagesLimit = 9;
+    vc.maximumImagesLimit = 5; //-1表示选取无限张图片
     vc.selectedItems = self.selectedItems;
     vc.delegate = self;
     
@@ -32,6 +32,7 @@
 //    [self presentViewController:vc animated:YES completion:nil];
 }
 
+#pragma mark - VKAssetsPickerDelegate
 - (void)VKAssetsPicker:(VKAssetsPickerController *)picker didFinishAssetsPick:(NSArray *)assets {
     [picker.navigationController popViewControllerAnimated:YES];
     [self.selectedItems removeAllObjects];
@@ -42,8 +43,6 @@
 }
 
 - (void)VKAssetsPickerDidExceedMaximumImages:(VKAssetsPickerController *)picker {
-//    UIAlertController *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"Maximum Images Selected" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil];
-    
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" message:@"Maximum Images Selected" preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         [alert dismissViewControllerAnimated:YES completion:nil];
