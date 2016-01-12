@@ -79,8 +79,7 @@ static NSString *identifier = @"VKAssetCellIdentifier";
         self.doneButton.titleLabel.font = [UIFont systemFontOfSize:12];
         self.doneButton.layer.cornerRadius = 3;
         self.doneButton.layer.masksToBounds = YES;
-        NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
-        [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
+        [self updateDoneButtonTitle];
         self.doneButton.backgroundColor = [UIColor colorWithRed:0.3 green:0.6 blue:0.95 alpha:1];
         
         [self.doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
@@ -90,6 +89,8 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     
     return _bottomView;
 }
+
+#pragma mark - 系统生命周期函数
 
 - (instancetype)init {
     self = [super init];
@@ -103,22 +104,12 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor whiteColor];
-    self.selectedImageNums = 0;
     
     PHFetchOptions *allPhotosOptions = [[PHFetchOptions alloc] init];
     allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
     self.allPhotos = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
     
-    self.itemArray = [NSMutableArray array];
-    for (PHAsset *asset in self.allPhotos) {
-        NSInteger selected = 0;
-        if (self.selectedItems != nil && [self.selectedItems containsObject:asset]) {
-            self.selectedImageNums++;
-            selected = 1;
-        }
-        NSMutableDictionary *tempDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:asset, @"asset", @(selected), @"selected", nil];
-        [self.itemArray addObject:tempDict];
-    }
+    [self updateItemArray];
     
     [self.view addSubview:self.mCollectionView];
     [self.view addSubview:self.bottomView];
@@ -126,10 +117,22 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     CGFloat scale = [UIScreen mainScreen].scale;
     CGSize cellSize = ((UICollectionViewFlowLayout *)self.flowLayout).itemSize;
     self.thumbnailSize = CGSizeMake(cellSize.width * scale, cellSize.height * scale);
-    NSLog(@">>>thumbnail>%@", NSStringFromCGSize(self.thumbnailSize));
     [self.photoLibrary registerChangeObserver:self];
 }
 
+//当相册改变时调用
+- (void)photoLibraryDidChange:(PHChange *)changeInstance {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        PHFetchResultChangeDetails *changeDetails = [changeInstance changeDetailsForFetchResult:self.allPhotos];
+        if (changeDetails != nil) {
+            self.allPhotos = [changeDetails fetchResultAfterChanges];
+            [self updateItemArray];
+            [self updateDoneButtonTitle];
+            [self.mCollectionView reloadData];
+        }
+    });
+    
+}
 
 #pragma mark - UICollectionView DataSource Delegate
 
@@ -142,7 +145,7 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     
     PHAsset *asset = self.itemArray[indexPath.item][@"asset"];
     
-    // Request an image for the asset from the PHCachingImageManager.
+    //从PHAsset中获取UIImage
     [self.imageManager requestImageForAsset:asset
                                  targetSize:self.thumbnailSize
                                 contentMode:PHImageContentModeAspectFill
@@ -179,25 +182,17 @@ static NSString *identifier = @"VKAssetCellIdentifier";
                               }];
 }
 
-- (void)photoLibraryDidChange:(PHChange *)changeInstance {
-    NSLog(@"change");
-}
-
+//Cell上的打钩按钮点击时调用
 - (void)cellCheckButtonClick:(id)sender {
     CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.mCollectionView];
     NSIndexPath *indexPath = [self.mCollectionView indexPathForItemAtPoint:buttonPosition];
-    if (indexPath != nil)
-    {
-        NSLog(@">>>%ld", indexPath.row);
-        NSLog(@">>>%ld", indexPath.item);
-        NSLog(@">>>%ld", indexPath.section);
+    if (indexPath != nil) {
         VKAssetCell *cell = (VKAssetCell *)[self.mCollectionView cellForItemAtIndexPath:indexPath];
         if (cell.selectButton.isSelected) {
             self.itemArray[indexPath.item][@"selected"] = @0;
             cell.selectButton.selected = NO;
             self.selectedImageNums--;
-            NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
-            [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
+            [self updateDoneButtonTitle];
         }else{
             if (self.maximumImagesLimit == self.selectedImageNums){
                 if ([self.delegate respondsToSelector:@selector(VKAssetsPickerDidExceedMaximumImages:)]) {
@@ -207,8 +202,7 @@ static NSString *identifier = @"VKAssetCellIdentifier";
                 self.itemArray[indexPath.item][@"selected"] = @1;
                 cell.selectButton.selected = YES;
                 self.selectedImageNums++;
-                NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
-                [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
+                [self updateDoneButtonTitle];
             }
         }
     }
@@ -226,7 +220,27 @@ static NSString *identifier = @"VKAssetCellIdentifier";
     if ([self.delegate respondsToSelector:@selector(VKAssetsPicker:didFinishAssetsPick:)]) {
         [self.delegate VKAssetsPicker:self didFinishAssetsPick:assets];
     }
+}
+
+- (void)updateDoneButtonTitle {
+    NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
+    [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
+}
+
+- (void)updateItemArray {
+    self.selectedImageNums = 0;
     
+    self.itemArray = nil;
+    self.itemArray = [NSMutableArray array];
+    for (PHAsset *asset in self.allPhotos) {
+        NSInteger selected = 0;
+        if (self.selectedItems != nil && [self.selectedItems containsObject:asset]) {
+            self.selectedImageNums++;
+            selected = 1;
+        }
+        NSMutableDictionary *tempDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:asset, @"asset", @(selected), @"selected", nil];
+        [self.itemArray addObject:tempDict];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
