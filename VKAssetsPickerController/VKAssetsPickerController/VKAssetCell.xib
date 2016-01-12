@@ -44,7 +44,7 @@
                 <outlet property="selectButton" destination="Trr-MJ-yvT" id="3YW-8g-5rR"/>
                 <outlet property="thumbnail" destination="nhZ-Cg-vC6" id="duY-4C-OC4"/>
             </connections>
-            <point key="canvasLocation" x="-66.5" y="420.5"/>
+            <point key="canvasLocation" x="-134.5" y="412.5"/>
         </collectionViewCell>
     </objects>
     <resources>

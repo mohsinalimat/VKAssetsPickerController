@@ -223,7 +223,7 @@ static NSString *identifier = @"VKAssetCellIdentifier";
 }
 
 - (void)updateDoneButtonTitle {
-    NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", self.selectedImageNums];
+    NSString *buttonTitle = [NSString stringWithFormat:@"确定(%ld)", (long)self.selectedImageNums];
     [self.doneButton setTitle:buttonTitle forState:UIControlStateNormal];
 }
 
