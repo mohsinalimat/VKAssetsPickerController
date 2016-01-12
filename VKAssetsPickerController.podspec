@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name         = 'VKAssetsPickerController'
-    s.version      = '1.0.0'
+    s.version      = '1.0.1'
     s.summary      = 'An easy way to use assets picker'
     s.homepage     = 'https://github.com/MrVokie/VKAssetsPickerController'
     s.license      = 'MIT'
